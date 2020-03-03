@@ -1,0 +1,52 @@
+<style lang="less">
+  .search, .info {
+    width: 100%;
+  }
+</style>
+
+<template>
+  <div class="container">
+    <search class="search"></search>
+    <panel :list="pavilionArr" :level="level" page="/pages/department" class="info"></panel>
+  </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core'
+  import eventHub from '../common/eventHub'
+  import testMixin from '../mixins/test'
+
+  const pavilionArr = [
+    { id: 330003, sffName: '东新馆', sffSummary: '位于东新路737号', img: '../assets/image/dxg.jpg'},
+    { id: 330004, sffName: '环西馆 (暂未开放)', sffSummary: '位于环城西路92号', img: '../assets/image/hxg.jpg'},
+    { id: 330005, sffName: '城站馆 (暂未开放)', sffSummary: '位于郭东园巷2号', img: '../assets/image/czg.jpg'},
+    { id: 330002, sffName: '武林馆 (暂未开放)', sffSummary: '位于体育路474号', img: '../assets/image/wlg.jpg'},
+    { id: 330001, sffName: '城西馆 (暂未开放)', sffSummary: '位于古墩路632号同人精华', img: '../assets/image/cxg.jpg'},
+  ]
+
+  wepy.page({
+    mixins: [testMixin],
+
+    data: {
+      pavilionArr,
+      level: 1   // 主页(分馆选择)
+    },
+
+    computed: {
+    
+    },
+
+    methods: {
+    
+    }
+  });
+</script>
+<config>
+{
+    navigationBarTitleText: '选择医馆',
+    usingComponents: {
+      panel: '../components/c_panel',
+      search: '../components/c_search',
+    }
+}
+</config>

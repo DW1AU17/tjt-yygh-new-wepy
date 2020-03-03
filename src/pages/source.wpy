@@ -1,0 +1,256 @@
+<style lang="less">
+.weui-media-box_appmsg {
+  align-items: flex-start;
+  border-bottom: 1px solid #e5e5e5;
+  .weui-media-box__thumb {
+    border-radius: 50%;
+  }
+  .weui-media-box__desc {
+    &.show-all {
+      -webkit-line-clamp: 10;
+    }
+  }
+}
+.source-info {
+  padding: 10rpx 20rpx;
+  .header {
+    margin-bottom: 20rpx;
+  }
+  .s-item-flex {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    height: 110rpx;
+    border-bottom: 1px dashed #e5e5e5;
+    .s-i-left {
+      flex: 1;
+      padding-right: 40rpx; 
+      .week {
+        margin-left: 40rpx;
+      }
+      .afternoon {
+        color: orangered;
+      }
+      .f-red {
+        float: right;
+      }
+    }
+    .s-i-right {
+      width: 15%;
+      button {
+        width: 90rpx;
+        padding: 0;
+        height: 44rpx;
+        line-height: 44rpx;
+      }
+    }
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+.c-picker, .modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  &.p-show {
+    z-index: 9;
+  }
+  .modal {
+    z-index: 9;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    &.show {
+      display: block;
+    }
+  }
+  .info {
+    z-index: 10;
+    position: relative;
+    height: 45%;
+    top: 100%;
+    transition: top 0.3s;
+    left: 0;
+    background-color: #fff;
+    &.show {
+      top: 55%
+    }
+    .i-top {
+      height: 85%;
+      padding: 20rpx;
+      overflow: scroll;
+      .i-item {
+        display: inline-block;
+        width: 19%;
+        margin: 0 1% 1% 0;
+        border: 1px solid #e5e5e5;
+        border-radius: 10rpx;
+        text-align: center;
+        &.active {
+          background-color: skyblue;
+          color: #fff;
+        }
+      }
+    }
+    .i-foot {
+      height: 15%;
+      border-top: 1px solid #e5e5e5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      button {
+        margin: 0 5px;
+      }
+    }
+  }
+}
+</style>
+
+<template>
+  <view class="source-container">
+    <!-- 底部抽屉 -->
+    <view class="c-picker  {{modalShow ? 'p-show' : ''}}">
+      <view class="info {{modalShow ? 'show' : ''}}">
+        <view class="i-top">
+          <view v-if="numList.length > 0" >
+            <view class="i-item fs-13 {{numActive == item.id ? 'active' : '' }}" v-for="item in numList" :key="item.id" @tap="numClick(item)">
+              <view>{{item.visitTime}}</view>
+              <view>{{item.serialNumber}}号</view>
+            </view>
+          </view>
+          <view v-else class="f-666">当前排班已无可用号源!请选择别的时间</view>
+        </view>
+        <view class="i-foot">
+          <button size="mini" @tap="hideMadol()">取消</button>
+          <button size="mini" type="primary" @tap="goOrderInfoPage">确定</button>
+        </view>
+      </view>
+      <view class="modal {{modalShow ? 'show' : ''}}" @tap="hideMadol()"></view>
+    </view>
+    <!-- 医生简介 -->
+    <view url="" class="weui-media-box weui-media-box_appmsg">
+        <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+            <image class="weui-media-box__thumb" src="../assets/image/pic.png" />
+        </view>
+        <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+            <view class="weui-media-box__title">{{doctorInfo.docName}}</view>
+            <text class="weui-media-box__desc" style="margin-bottom: 4px;">{{doctorInfo.sffPW}} (东新馆)</text>
+            <view class="weui-media-box__desc {{showAll ? 'show-all' : ''}}" @tap="infoClick">{{doctorInfo.sffSummary}}</view>
+        </view>
+    </view>
+    <!-- 号源列表 -->
+    <view class="source-info">
+      <view class="header">号源列表</view>
+      <block v-if="sourceList.length > 0">
+        <view class="s-item-flex" v-for="item in sourceList" :key="item.id">
+          <view class="s-i-left">
+            <view>
+              {{item.schdate}} 
+              <text class="week">{{item.week}}</text>
+              <text class="week" wx:if="{{item.ampm > 2}}">夜门诊</text>
+              <text class="week {{item.ampm == 2 ? 'afternoon' : ''}}" wx:else>{{item.ampm == 2 ? "下午" : "上午"}}</text>
+            </view>
+            <view class="f-999 fs-13">{{item.deptname}} ({{item.numremain == 2 ? "专家" : "普通"}}) <text class="f-red">{{item.totalFee + '.00'}}元</text></view>
+          </view>
+          <view class="s-i-right">
+            <button class="b-blue" size="mini" @tap="orderMadol(item)">预约</button>
+          </view>
+        </view>
+      </block>
+      <view v-else class="f-666">暂无排班</view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import eventHub from '../common/eventHub';
+import testMixin from '../mixins/test';
+
+wepy.page({
+  mixins: [testMixin],
+
+  data: {
+    showAll: false,
+    sourceList: [],   // 排版列表
+    numList: [],  // 号源列表
+    numActive: 0, // 号源选中
+    modalShow: false,   // 号源列表模态框展示
+    doctorInfo: {},  // 医生信息
+    chooseInfo: {}   // 选中信息， 传递给一下页
+  },
+
+  onLoad(option){
+    const eventChannel = this.$wx.getOpenerEventChannel()
+    // 监听acceptDataFromOpenerPage事件，获取上一页面通过eventChannel传送到当前页面的数据
+    eventChannel.on('doctorInfo', (data) => {
+      this.doctorInfo = data.data
+      const {docName, depName } = data.data
+      this.chooseInfo = { docName, depName } 
+    })
+    // 获取号源
+    this.getSource()
+  },
+
+  methods: {
+    // 展示排班
+    async getSource() {
+      let res = await this.axios("getSchedulingJson",{ data: this.doctorInfo })
+      if (res.ret === 0 && res.data.length > 0) {
+        res.data.map(item => { 
+          item.week = this.getWhatDay(this.dealDate(item.schdate))  // 得到周几
+          item.schdate = this.dealDate(item.schdate)    // 格式化日期
+          return item
+        })
+        this.sourceList = res.data
+      }
+    },
+    // 医生简介展示
+    infoClick () {
+      this.showAll = !this.showAll
+    },
+    // 号源选择
+    numClick (item) {
+      this.numActive = item.id
+      item.numId = item.id
+      this.chooseInfo = {...this.chooseInfo, ...item }
+    },
+    hideMadol() {
+      this.modalShow = false
+    },
+    // 展示号源
+    async orderMadol(item) { 
+      console.log(item)
+      this.modalShow = true 
+      const { schid: schId, ampm, orgid: orgId } = item 
+      const data = { schId, ampm, orgId }
+      let res = await this.axios("getSchedulingSourceJson",{ data })
+      if (res.ret === 0 && res.data.length > 0) {
+        this.numList = res.data
+      }
+      this.chooseInfo = {...this.chooseInfo, ...item }
+    },
+    goOrderInfoPage() {
+      this.modalShow = false
+      wx.navigateTo({
+        url: '/pages/orderInfo',
+        events: {},
+        success: res => {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit('chooseInfo', { data: this.chooseInfo })
+        }
+      })
+    }
+  }
+});
+</script>
+<config>
+{
+    navigationBarTitleText: '号源',
+    usingComponents: {
+      
+    }
+}
+</config>

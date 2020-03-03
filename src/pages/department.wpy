@@ -1,0 +1,55 @@
+<style lang="less">
+
+</style>
+
+<template>
+  <div class="dep-container">
+    <view class="weui-panel">
+      <view class="weui-panel__hd">请选择科室</view>
+      <view class="weui-panel__bd">
+        <!-- 可是列表 -->
+        <panel :list="depList" page="/pages/doctor"></panel>
+      </view>
+    </view>
+  </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core'
+  import eventHub from '../common/eventHub'
+  import testMixin from '../mixins/test'
+
+  wepy.page({
+    mixins: [testMixin],
+
+    onLoad() {
+      // 获取科室列表
+      this.getDepList()
+    },
+
+    data: {
+      depList: []
+    },
+
+    methods: {
+      async getDepList() {
+        let res = await this.axios('getDeptJson')
+        if (res.ret === 0) {
+          this.depList = res.data
+        }
+      }
+    }, 
+
+    computed: {
+    
+    }
+  });
+</script>
+<config>
+{
+    navigationBarTitleText: '科室选择',
+    usingComponents: {
+      panel: '../components/c_panel_s',
+    }
+}
+</config>

@@ -1,0 +1,198 @@
+<style lang="less">
+.weui-cells:after {
+  border-bottom: none;
+}
+.button-sp-area {
+  border-top: 1rpx solid #d9d9d9;
+  padding: 10px;
+  button {
+      background-color: skyblue;
+      color: #fff;
+  }
+}
+</style>
+
+<template>
+    <div class="add-container">
+        <form @submit="submitForm">
+            <view class="weui-cells__title">基本信息</view>
+            <view class="weui-cells weui-cells_after-title">
+                <view class="weui-cell weui-cell_input" hidden>
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">姓名</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input
+                            name="name"
+                            value="{{ form.name }}"
+                            class="weui-input"
+                            type="text"
+                            placeholder="请输入姓名"
+                        >
+                    </view>
+                </view>
+                <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">身份证号码</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input
+                            name="idcard"
+                            value="{{ form.idcard || 330327197702160960 }}"
+                            class="weui-input"
+                            type="idcard"
+                            placeholder="请输入身份证号码"
+                        >
+                    </view>
+                </view>
+                 <view class="weui-cell weui-cell_input">
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">门诊号</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input
+                            name="patCardNum"
+                            value="{{ form.patCardNum || 00116879 }}"
+                            class="weui-input"
+                            type="patCardNum"
+                            placeholder="请输入门诊号"
+                        >
+                    </view>
+                </view>
+                <view class="weui-cell weui-cell_input" hidden>
+                    <view class="weui-cell__hd">
+                        <view class="weui-label">手机号</view>
+                    </view>
+                    <view class="weui-cell__bd">
+                        <input
+                            name="tel"
+                            value="{{ form.tel }}"
+                            class="weui-input"
+                            type="number"
+                            placeholder="请输入手机号"
+                        >
+                    </view>
+                </view>
+                <view class="button-sp-area">
+                    <button formType="submit">提交</button>
+                </view>
+            </view>
+        </form>
+    </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import eventHub from '../common/eventHub';
+import testMixin from '../mixins/test';
+import WxValidate from '../utils/WxValidate.js';
+
+wepy.page({
+  mixins: [testMixin],
+
+  data: {
+    form: {
+      name: '',
+      tel: '',
+      idCard: '',
+      patCardNum: ''
+    }
+  },
+  onLoad() {
+    this.initValidate();
+  },
+  methods: {
+    async submitForm(e) {
+      const params = e.$wx.detail.value;
+      // 传入表单数据，调用验证方法
+      if (!this.WxValidate.checkForm(params)) {
+        const error = this.WxValidate.errorList[0];
+        this.showModal(error);
+        return false;
+      }
+      let { patCardNum, idcard: idCard } = params
+      let data = { patCardNum, idCard }
+      // 查看预约记录
+      let res = await this.axios("getAllRegistered", { data })
+      // 患者信息
+      let perRes = await this.axios("checkPatId", { data })
+      if (perRes.ret === 0) {
+        let userInfo = []
+        let localUserInfo = wx.getStorageSync('userInfo')
+        if (localUserInfo && localUserInfo.length > 0) {
+            let flag = localUserInfo.some(item => item.id == perRes.data.id)
+            userInfo = !flag ? [...localUserInfo, perRes.data] : localUserInfo
+        } 
+        wx.setStorageSync('userInfo', userInfo)  // 患者信息存到缓存
+        wx.navigateBack()
+      } else {
+        wx.showToast({
+          title: perRes.msg,
+          icon: 'none',
+          duration: 2000
+        })
+      }
+    },
+    showModal(error) {
+      wx.showModal({
+        content: error.msg,
+        showCancel: false
+      });
+    },
+
+    initValidate() {
+      // 验证字段的规则
+      const rules = {
+        // name: {
+        //   required: true,
+        //   minlength: 2
+        // },
+        // tel: {
+        //   required: true,
+        //   tel: true
+        // },
+        idcard: {
+          required: true,
+          idcard: true
+        },
+        patCardNum: {
+          required: true
+        }
+      };
+      // 验证字段的提示信息，若不传则调用默认的信息
+      const messages = {
+        // name: {
+        //   required: '请输入姓名',
+        //   email: '请输入正确的姓名',
+        //   minlength: '请输入正确的姓名'
+        // },
+        // tel: {
+        //   required: '请输入手机号',
+        //   tel: '请输入正确的手机号'
+        // },
+        idcard: {
+          required: '请输入身份证号码',
+          idcard: '请输入正确的身份证号码'
+        },
+      
+        patCardNum: {
+          required: '请输入门诊号'
+        }
+      };
+
+      // 创建实例对象
+      this.WxValidate = new WxValidate(rules, messages);
+    }
+  },
+
+  computed: {}
+});
+</script>
+<config>
+{
+    navigationBarTitleText: '添加就诊人',
+    usingComponents: {
+      
+    }
+}
+</config>

@@ -1,0 +1,135 @@
+<style lang="less">
+.doctor-container {
+  padding-top: 100rpx; 
+  .header {
+    width: 100%;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    z-index: 8;
+    .scroll_w {
+      width: 100%;
+      height: 100rpx;
+      white-space: nowrap;
+      border-bottom: 1rpx solid #e5e5e5;
+      border-top: 1rpx solid #e5e5e5;
+      .nav-item {
+        font-size: 14px;
+        width: 100rpx;
+        height: 100%;
+        line-height: 50rpx;
+        display: inline-block;
+        vertical-align: top;
+        border-right: 1rpx solid #e5e5e5;
+        &:first-child {
+          line-height: 100rpx;
+        }
+        &.active {
+          background-color: skyblue;
+          color: #fff;
+        }
+      }
+    }
+  }
+  .doctor-list {
+    .weui-media-box__thumb {
+      border-radius: 50%;
+    }
+  }
+}
+</style>
+
+<template>
+  <view class="doctor-container">
+    <!-- 头部navbar -->
+    <view class="header">
+      <scroll-view class="scroll_w" scroll-x>
+        <view
+          v-for="item in dateArr"
+          :key="item.id"
+          @tap="tabClick(item.id, item.searchDate)"
+          class="nav-item {{activeIndex === item.id ? 'active' : ''}}"
+        >
+          {{item.week}}
+          <br>
+          {{item.time}}
+        </view>
+      </scroll-view>
+    </view>
+    <!-- 医生列表 -->
+    <view class="doctor-list">
+      <view v-if="doctorList.length > 0">
+        <view class="weui-tab__content">
+          <!-- panel組件: 医生列表 -->
+          <panel :list="doctorList" :circle="true" :level="3" page="/pages/source"></panel>
+        </view>
+      </view>
+      <view v-else>暂无</view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import eventHub from '../common/eventHub';
+import testMixin from '../mixins/test';
+import { getDates } from '../utils/utils'
+
+const dateArr = [
+  { id: 0, week: '全部', time: '' ,searchDate: ''},
+];
+
+wepy.page({
+  mixins: [testMixin],
+
+  data: {
+    activeIndex: 0,
+    dateArr,      // 日期
+    doctorList: [],   // 医生列表
+    deptId: 0     // 科室Id 
+  },
+  onLoad(options) {
+    this.deptId = options.id
+    // 获取医生列表
+    this.getDocList()
+    // 获取预约周期
+    this.getWeek()
+
+    wx.setNavigationBarTitle({
+      title: options.name
+    })
+  },
+
+  methods: {
+    tabClick(id, searchDate) {
+      this.activeIndex = id;
+      this.getDocList(searchDate)
+    },
+    async getDocList(searchDate = '') {
+      wx.showLoading({
+        title: '加载中',
+      })
+      let data = { deptId: this.deptId, searchDate}
+      let res = await this.axios("getDoctorByDateJson" , { method: "post", data })
+      if (res.ret === 0) {
+        res.data.map(item => item.img = '../assets/image/pic.png')
+        this.doctorList = res.data
+        wx.hideLoading()
+      }
+    },
+    getWeek() {
+      const dataList = getDates(7)
+      this.dateArr = [...this.dateArr, ...dataList]
+    }
+  }
+});
+</script>
+<config>
+{
+    usingComponents: {
+      panel: '../components/c_panel',
+    }
+}
+</config>

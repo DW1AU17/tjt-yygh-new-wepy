@@ -1,0 +1,151 @@
+<style lang="less">
+.order-container {
+  border-top: 1px solid #e5e5e5;
+  .info {
+    padding: 20rpx 30rpx;
+    border-bottom: 16rpx solid #eee;
+    margin-bottom: 20px;
+    .item {
+      height: 60rpx;
+      line-height: 60rpx;
+      .left,
+      .right {
+        display: inline-block;
+      }
+      .left {
+        width: 30%;
+      }
+      .right {
+        width: 70%;
+        text-align: right;
+      }
+    }
+  }
+  .patient {
+    margin: 10px;
+    padding: 10px;
+    box-shadow: 0px 0px 6px #999;
+    .top {
+      display: flex;
+      .p-info {
+        flex: 1;
+        padding-bottom: 10px;
+      }
+      .arrow {
+        width: 10%;
+      }
+    }
+    .bot {
+      border-top: 1px solid #e5e5e5;
+      padding-top: 10px;
+      text-align: center;
+      button {
+        background-color: rgb(255, 132, 0);
+        color: #fff;
+        margin-bottom: 10px;
+      }
+    }
+  }
+}
+</style>
+
+<template>
+  <div class="order-container">
+    <view class="info">
+      <view class="item">
+        <view class="left f-999">预约科室</view><view class="right">{{orderInfo.depName}}</view>
+      </view>
+      <view class="item">
+        <view class="left f-999">预约医师</view><view class="right">{{orderInfo.docName}}</view>
+      </view>
+      <view class="item">
+        <view class="left f-999">预约时间</view><view class="right">{{orderInfo.schdate}} {{orderInfo.visitTime}} {{orderInfo.week}}</view>
+      </view>
+      <view class="item">
+        <view class="left f-999">挂号费</view><view class="right f-red">{{orderInfo.totalFee}} 元</view>
+      </view>
+      <view class="item">
+        <view class="left f-999">就诊序号</view><view class="right">{{orderInfo.serialNumber}}</view>
+      </view>
+    </view>
+    <!-- 就诊人选择 -->
+    <view class="patient">
+      <navigator class="top" url="/pages/person">
+        <view class="p-info" >
+          <view>{{patient.patName}}</view>
+          <view class="fs-13 f-666">手机号：{{patient.patPhone}}</view>
+        </view>
+        <view class="arrow weui-cell__ft weui-cell__ft_in-access"></view>
+      </navigator>
+      <view class="bot">
+        <button @click="submit">提交信息</button>
+        <view class="fs-13 f-999">挂号前请仔细阅读
+          <text class="f-blue">《挂号须知》</text>
+        </view>
+      </view>
+    </view>
+  </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import eventHub from '../common/eventHub';
+import testMixin from '../mixins/test';
+import { defaultPerson, showToast } from '../utils/utils'
+
+wepy.page({
+  mixins: [testMixin],
+
+  data: {
+    orderInfo: {},
+    patient: { patName: '请选择就诊人'}
+  },
+
+  onLoad(options) {
+    // 获取默认就诊人
+    let res = defaultPerson()
+    res && (this.patient = res[0])
+    
+    const eventChannel = this.$wx.getOpenerEventChannel()
+    // 监听acceptDataFromOpenerPage事件，获取上一页面通过eventChannel传送到当前页面的数据
+    eventChannel.on('chooseInfo', (data) => {
+      this.orderInfo = data.data
+    })
+  },
+
+  computed: {},
+
+  methods: {
+    async submit() {
+      if (!this.patient.id) {
+        showToast('请选择就诊人', 1000, 'none')
+      } else {
+        let data = {
+          regId: this.orderInfo.numId,
+          schId: this.orderInfo.schid,
+          ampm: this.orderInfo.ampm,
+          orgCode: '057196',
+          numId: this.orderInfo.numId,
+          patId: this.patient.id,
+          visitDate: this.orderInfo.schedulingDate
+        }
+        let res = await this.axios("registered",{ data })
+        if (res.ret === 0) {
+          showToast('操作成功')
+          wx.navigateTo({ url: '/pages/order' })
+        } else {
+          showToast(res.msg)
+        }
+      }
+    }
+  }
+});
+</script>
+<config>
+{
+    navigationBarTitleText: '预约信息提交',
+    usingComponents: {
+    
+    }
+}
+</config>

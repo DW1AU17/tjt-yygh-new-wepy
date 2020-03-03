@@ -1,0 +1,95 @@
+<style lang="less">
+.person-container {
+  .weui-cell__hd {
+    margin-right: 10px;
+    width: 30rpx;
+  }
+  .weui-cell__bd {
+    padding: 10rpx;
+  }
+  .weui-cell__ft_in-access {
+    height: 30px;
+  }
+  .p-foot {
+    position: fixed;
+    border-top: 1px solid #e5e5e5;
+    padding: 16rpx;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0px 0 8px #eee; 
+    button {
+      background-color: skyblue;
+      color: #fff;
+    }
+  }
+}
+</style>
+
+<template>
+  <div class="person-container">
+    <!-- 就诊人列表 -->
+     <view class="weui-cells weui-cells_in-small-appmsg">
+        <view class="weui-cell weui-cell_access" v-for="item in personList" :key="item.id">
+            <view class="weui-cell__hd">
+              <icon type="success" size="20" hidden="{{!item.default}}"/>
+            </view>
+            <view class="weui-cell__bd weui-cell_primary" @tap="choosePerson(item)">
+                <view>{{item.patName}} <text class="fs-12 f-666">{{item.patPhone}}</text></view>
+                <view class="fs-12 f-666">身份证: {{item.patIdentityNum}}</view>
+            </view>
+            <!-- <navigator url="/pages/patientInfo" class="weui-cell__ft weui-cell__ft_in-access"></navigator> -->
+        </view>
+     </view>
+     <!-- 底部按钮 -->
+     <navigator url="/pages/addPatient" class="p-foot">
+       <button>添加就诊人</button>
+     </navigator>
+  </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core'
+  import eventHub from '../common/eventHub'
+  import testMixin from '../mixins/test'
+  import { defaultPerson } from '../utils/utils'
+
+  wepy.page({
+    mixins: [testMixin],
+
+    data: {
+      personList: []
+    },
+
+    onShow() {
+      // 获取默认就诊人
+      let res = defaultPerson()
+      console.log(res)
+      res && (this.personList = res)
+    },
+
+    computed: {
+      
+    },
+
+    methods: {
+      choosePerson(item) {
+        let pages = getCurrentPages();
+        var prevPage = pages[pages.length - 2]; // 上一个页面
+        // 修改上一个页面的数据
+        prevPage.setData({
+          patient: item
+        })
+        wx.navigateBack();
+      }
+    }
+  });
+</script>
+<config>
+{
+    navigationBarTitleText: '选择就诊人',
+    usingComponents: {
+    
+    }
+}
+</config>

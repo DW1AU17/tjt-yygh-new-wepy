@@ -1,0 +1,85 @@
+<style lang="less">
+.weui-cell_input {
+  height: 80rpx;
+}
+.weui-cells:after {
+  border-bottom: none;
+}
+.button-sp-area {
+  padding: 10px;
+  button {
+    background-color: skyblue;
+    color: #fff;
+  }
+}
+</style>
+
+<template>
+  <div class="edit-container">
+    <view class="weui-cells weui-cells_after-title">
+      <view class="weui-cell weui-cell_input">
+        <view class="weui-cell__hd">
+          <view class="weui-label">姓名</view>
+        </view>
+        <view class="weui-cell__bd f-999">三点水</view>
+      </view>
+      <view class="weui-cell weui-cell_input">
+        <view class="weui-cell__hd">
+          <view class="weui-label">身份证号</view>
+        </view>
+        <view class="weui-cell__bd f-999">330682**********13</view>
+      </view>
+      <view class="weui-cell weui-cell_input">
+        <view class="weui-cell__hd">
+          <view class="weui-label">手机号</view>
+        </view>
+        <view class="weui-cell__bd f-999">178****0911</view>
+      </view>
+      <view class="weui-cells weui-cells_after-title">
+        <view class="weui-cell weui-cell_switch">
+          <view class="weui-cell__bd">设置为默认就诊人</view>
+          <view class="weui-cell__ft">
+            <switch checked="{{isSelect}}" @change="chooseDefault"></switch>
+          </view>
+        </view>
+      </view>
+      <view class="button-sp-area">
+        <button @tap="submitDefault()">确定</button>
+      </view>
+    </view>
+  </div>
+</template>
+
+<script>
+import wepy from '@wepy/core';
+import eventHub from '../common/eventHub';
+import testMixin from '../mixins/test';
+
+wepy.page({
+  mixins: [testMixin],
+
+  data: {
+    isSelect: true
+  },
+
+  computed: {},
+
+  methods: {
+    chooseDefault(e) {
+      console.log(e.$wx.detail.value);
+      this.isSelect = e.$wx.detail.value;
+    },
+    submitDefault() {
+      wx.navigateBack();
+    }
+  }
+});
+</script>
+<config>
+{
+    navigationBarTitleText: '操作',
+    usingComponents: {
+
+    }
+}
+</config>

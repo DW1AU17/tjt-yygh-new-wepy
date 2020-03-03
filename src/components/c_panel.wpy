@@ -1,0 +1,85 @@
+<style lang="less">
+  @import '../style/weui.less';
+  .weui-panel:before {
+    border-top: none;
+  }
+  .custom_add {
+    width: 56px;
+    height: 56px;
+    .weui-media-box__thumb {
+      border-radius: 50%;
+    }
+  }
+  .derpatment {
+    font-size: 14px;
+    color: #999;
+    margin-left: 2px;
+  }
+</style>
+<template>
+  <view class="weui-panel weui-panel_access">
+    <view class="weui-panel__bd">
+      <view v-for="item in list" :key="item.id" @click="goPage(item, page)" class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
+        <view class="weui-media-box__hd weui-media-box__hd_in-appmsg {{ circle ? 'custom_add' : ''}}">
+            <image class="weui-media-box__thumb" src="{{item.img}}" />
+        </view>
+        <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+            <view class="weui-media-box__title">{{item.sffName}} <text class="derpatment">{{item.sffProfessionalWrapper}}</text></view>
+            <view class="weui-media-box__desc">{{item.sffSummary}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from '@wepy/core'
+
+  wepy.component({
+    props: {
+      list: {
+        type: Object
+      },
+      level: {
+        type: Number
+      },
+      circle: {
+        type: Boolean,
+        default: false
+      },
+      page: {
+        type: String
+      }
+    },
+    methods: {
+      goPage(item, page) {
+        const { sffId: docId, sffName: docName, sffSummary, depId, sffProfessionalWrapper: sffPW, id } = item
+        if (id === 330003 || this.level !== 1) {
+          const data = { docId, docName, sffSummary, sffPW, depId, orgCode: '057196' }
+          wx.navigateTo({
+            url: page,
+            events: {},
+            success: res => {
+              // 通过eventChannel向被打开页面传送数据
+              res.eventChannel.emit('doctorInfo', { data })
+            }
+          })
+        } else {
+          wx.showToast({
+            title: '此馆暂时不能预约！',
+            icon: 'none',
+            duration: 1500
+          })
+        }
+      }
+    },
+
+    events: {
+
+    },
+
+    watch: {
+
+    },
+
+  })
+</script>
