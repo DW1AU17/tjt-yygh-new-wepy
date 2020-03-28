@@ -29,7 +29,8 @@ export default {
 
       // 公共路径部分
       // const BASE_URl = 'https://ezhenmai.com:7011/app/register/';
-      const BASE_URl = 'http://192.168.1.43:8085/app/register/';
+      // const BASE_URl = 'http://192.168.1.43:8085/app/register/';
+      const BASE_URl = 'http://192.168.1.46:8085/app/register/';
       let method = "get";
       let arr = Object.keys(options)
       if (typeof url === "string") {

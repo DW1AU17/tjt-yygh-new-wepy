@@ -38,7 +38,7 @@
                     <view class="weui-cell__bd">
                         <input
                             name="idcard"
-                            value="{{ form.idcard || 330327197702160960 }}"
+                            value="{{ form.idcard }}"
                             class="weui-input"
                             type="idcard"
                             placeholder="请输入身份证号码"
@@ -52,7 +52,7 @@
                     <view class="weui-cell__bd">
                         <input
                             name="patCardNum"
-                            value="{{ form.patCardNum || 00116879 }}"
+                            value="{{ form.patCardNum }}"
                             class="weui-input"
                             type="patCardNum"
                             placeholder="请输入门诊号"

@@ -43,6 +43,9 @@
         background-color: rgb(255, 132, 0);
         color: #fff;
         margin-bottom: 10px;
+        &.disabled {
+          background-color: #F3D19E;
+        }
       }
     }
   }
@@ -78,12 +81,15 @@
         <view class="arrow weui-cell__ft weui-cell__ft_in-access"></view>
       </navigator>
       <view class="bot">
-        <button @click="submit">提交信息</button>
-        <view class="fs-13 f-999">挂号前请仔细阅读
-          <text class="f-blue">《挂号须知》</text>
+        <button @click="submit" disabled="{{ disabled }}" :class="{'disabled': disabled }">提交信息</button>
+        <view class="fs-13 f-999">
+          <checkbox value="{{ !disabled }}" checked="{{ !disabled }}" @click="changeCheck" />
+          挂号前请仔细阅读
+          <text class="f-blue" @click="regRemind">《挂号须知》</text>
         </view>
       </view>
     </view>
+    <c-dialog v-if="isDailogShow" @hideDialog="regRemind" />
   </div>
 </template>
 
@@ -98,7 +104,9 @@ wepy.page({
 
   data: {
     orderInfo: {},
-    patient: { patName: '请选择就诊人'}
+    patient: { patName: '请选择就诊人'},
+    disabled: true,
+    isDailogShow: false
   },
 
   onLoad(options) {
@@ -137,7 +145,20 @@ wepy.page({
           showToast(res.msg)
         }
       }
-    }
+    },
+    /***
+     * 挂号须知 (模态开 / 关)
+     * @param e e.$wx.detail 包含dialog组件传递的参数
+     */
+    regRemind(e) {
+      let { flag } = e.$wx.detail
+      this.isDailogShow = !this.isDailogShow  // 是否展示模态框
+      this.disabled = !flag ? true : false    // 是否禁用
+    },
+    // 切换禁用状态
+    changeCheck() {
+      this.disabled = !this.disabled
+    },
   }
 });
 </script>
@@ -145,7 +166,7 @@ wepy.page({
 {
     navigationBarTitleText: '预约信息提交',
     usingComponents: {
-    
+      'c-dialog': '../components/c_dialog_remind',
     }
 }
 </config>

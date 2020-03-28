@@ -1,0 +1,65 @@
+<style lang="less">
+    .dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.3);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        .content {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 100%;
+            padding: 10px;
+            .title {
+                text-align: center;
+                font-weight: 700;
+                font-size: 18px;
+            }
+            .foot {
+                margin-top: 20px;
+                button {
+                    background-color: orange;
+                    color: #fff;
+                }
+            }
+        }
+    }
+    .orange {
+        color: tomato;
+    }
+</style>
+
+<template>
+    <div class="dialog">
+        <div class="content">
+            <div class="title">挂号须知</div>
+            <p>① 身份信息必须与就诊者保持一致；</p>
+            <p>② 取消预约截止时间为<span class="orange">就诊前一日24点；</span></p>
+            <p>③ 请比号源时间提前15分钟取号；</p>
+            <p>④ 上午预约号取号<span class="orange">截止时间为上午12时</span>，下午预约号取号<span class="orange">截止时间为下午5时；</span></p>
+            <div class="foot">
+                <button type="primary" @click="regRemind">确定</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core'
+
+  wepy.component({
+    props: {},
+    methods: {
+        regRemind() {
+            // 通过 triggerEvent 触发自定义事件
+            this.$wx.triggerEvent('hideDialog', { flag: true }, {})
+            
+            // this.$parent.regRemind(true)  // 直接操作父组件方法
+        }
+    }
+  })
+</script>
