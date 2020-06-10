@@ -10,6 +10,11 @@
       color: #fff;
   }
 }
+.warn {
+    color: red;
+    font-size: 14px;
+    padding: 0 12px;
+}
 </style>
 
 <template>
@@ -78,6 +83,9 @@
                 </view>
             </view>
         </form>
+        <view class="warn">
+            注意: 小程序预约挂号只适用于已有门诊号的患者
+        </view>
     </div>
 </template>
 

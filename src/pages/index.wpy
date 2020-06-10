@@ -3,13 +3,20 @@
     width: 100%;
     margin-bottom: 10px;
   }
+  .warn {
+    color: red;
+    font-size: 14px;
+  }
 </style>
 
 <template>
-  <div class="container">
+  <view class="container">
     <search class="search"></search>
     <panel :list="pavilionArr" :level="level" page="/pages/department" class="info"></panel>
-  </div>
+    <view class="warn">
+      注意: 小程序预约挂号只适用于已有门诊号的患者
+    </view>
+  </view>
 </template>
 
 <script>

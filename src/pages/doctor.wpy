@@ -114,7 +114,7 @@ wepy.page({
       let data = { deptId: this.deptId, searchDate}
       let res = await this.axios("getDoctorByDateJson" , { method: "post", data })
       if (res.ret === 0) {
-        res.data.map(item => item.img = '../assets/image/pic.png')
+        // res.data.map(item => item.img = '../assets/image/pic.png')
         this.doctorList = res.data
         wx.hideLoading()
       }

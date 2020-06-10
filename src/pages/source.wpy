@@ -106,6 +106,14 @@
     }
   }
 }
+.head-portrait {
+    background: skyblue;
+    border-radius: 50%;
+    color: #fff;
+    height: 60px;
+    line-height: 60px;
+    font-size: 20px;
+  }
 </style>
 
 <template>
@@ -132,7 +140,8 @@
     <!-- 医生简介 -->
     <view url="" class="weui-media-box weui-media-box_appmsg">
         <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
-            <image class="weui-media-box__thumb" src="../assets/image/pic.png" />
+            <!-- <image class="weui-media-box__thumb" src="../assets/image/pic.png" /> -->
+            <view class="head-portrait">{{tools.returnFirst(doctorInfo.docName)}}</view>
         </view>
         <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
             <view class="weui-media-box__title">{{doctorInfo.docName}}</view>
@@ -163,7 +172,7 @@
     </view>
   </view>
 </template>
-
+<wxs src="../utils/tools.wxs" module="tools" />
 <script>
 import wepy from '@wepy/core';
 import eventHub from '../common/eventHub';

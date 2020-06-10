@@ -15,13 +15,22 @@
     color: #999;
     margin-left: 2px;
   }
+  .head-portrait {
+    background: skyblue;
+    border-radius: 50%;
+    color: #fff;
+    height: 56px;
+    line-height: 56px;
+    font-size: 20px;
+  }
 </style>
 <template>
   <view class="weui-panel weui-panel_access">
     <view class="weui-panel__bd">
       <view v-for="item in list" :key="item.id" @click="goPage(item, page)" class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
         <view class="weui-media-box__hd weui-media-box__hd_in-appmsg {{ circle ? 'custom_add' : ''}}">
-            <image class="weui-media-box__thumb" src="{{item.img}}" />
+            <image v-if="item.img" class="weui-media-box__thumb" src="{{item.img}}" />
+            <view v-else class="head-portrait">{{tools.returnFirst(item.sffName)}}</view>
         </view>
         <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
             <view class="weui-media-box__title">{{item.sffName}} <text class="derpatment">{{item.sffProfessionalWrapper}}</text></view>
@@ -31,6 +40,7 @@
     </view>
   </view>
 </template>
+<wxs src="../utils/tools.wxs" module="tools" />
 <script>
   import wepy from '@wepy/core'
 
